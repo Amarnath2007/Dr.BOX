@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Medicine Reminder System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #333;
+            --light-text-color: #fff;
+            --menu-hover-color: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%) fixed;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 280px;
+            background-color: rgba(44, 62, 80, 0.9);
+            color: var(--light-text-color);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(52, 152, 219, 0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+            animation: rainbow 5s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar ul li {
+            margin: 10px 20px;
+        }
+
+        .sidebar ul li a {
+            color: var(--light-text-color);
+            text-decoration: none;
+            font-weight: bold;
+            display: block;
+            padding: 15px 20px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .sidebar ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar ul li a:hover::before {
+            opacity: 1;
+        }
+
+        .sidebar ul li a:hover {
+            color: var(--light-text-color);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Main content styling */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+            background-color: rgba(255,255,255,0.9);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: 10px 0 0 10px;
+        }
+
+        /* Heading styling */
+        .main-content h1 {
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 32px;
+            padding: 20px;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        .main-content h2 {
+            font-size: 24px;
+            margin: 30px 0 20px;
+            color: var(--secondary-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+        }
+
+        .main-content p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            background-color: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        /* Form styling */
+        form {
+            background-color: rgba(255,255,255,0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        form label {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        form input[type="time"], form input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        form input[type="time"]:focus, form input[type="tel"]:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+        }
+
+        form button {
+            padding: 12px 25px;
+            background-color: var(--accent-color);
+            color: var(--light-text-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        form button:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Content sections styling */
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        /* Alarm time section styling */
+        .alarm-time {
+            margin-bottom: 20px;
+            background-color: rgba(255,255,255,0.6);
+            padding: 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .alarm-time:hover {
+            background-color: rgba(255,255,255,0.8);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Notification section styling */
+        #notifications {
+            color: var(--primary-color);
+            padding: 20px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #notifications h1 {
+            font-size: 28px;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        #notifications p {
+            font-size: 18px;
+            color: var(--text-color);
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 20px;
+            }
+
+            .sidebar ul {
+                flex-direction: row;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            .sidebar ul li {
+                margin: 5px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <h2>MENU</h2>
+            <ul>
+                <li><a href="#home" onclick="showContent('home')">Home</a></li>
+                <li><a href="#set-alarm" onclick="showContent('set-alarm')">Set Alarm Time</a></li>
+                <li><a href="#change-phone" onclick="showContent('change-phone')">Change Phone No.</a></li>
+                <li><a href="#notifications" onclick="showContent('notifications')">Notification</a></li> <!-- New Menu Item -->
+                <li><a href="#about" onclick="showContent('about')">About</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div id="home" class="content active">
+                <h1>HOME</h1>
+                <p>Welcome to the Smart Medicine Reminder System. This system helps you manage medication schedules effectively. Here's how to use it:</p>
+                <h2>Setting the Alarm Time</h2>
+                <p>To set the alarm times:</p>
+                <ol>
+                    <li>  Go to the <strong>Set Alarm Time</strong> page from the sidebar.</li>
+                    <li>  Enter up to 6 different times for the alarm to trigger.</li>
+                    <li>  Click the <strong>Set Alarms</strong> button to save the times.</li>
+                </ol>
+                <h2>Changing the Mobile Number</h2>
+                <p>To update the caretaker's phone number:</p>
+                <ol>
+                    <li>  Navigate to the <strong>Change Phone No.</strong> page.</li>
+                    <li>  Enter the new phone number in the provided field.</li>
+                    <li>  Click <strong>Update Number</strong> to save the new number.</li>
+                </ol>
+            </div>
+            <div id="set-alarm" class="content">
+                <h1>Set Alarm Time</h1>
+                <p>Here, you can set up to 6 different times per day when the alarm will trigger.</p>
+                <form id="alarm-form">
+                    <div class="alarm-time">
+                        <label for="alarm1">Alarm 1:</label>
+                        <input type="time" id="alarm1" name="alarm1">
+                    </div>
+                    <div class="alarm-time">
+                        <label for="alarm2">Alarm 2:</label>
+                        <input type="time" id="alarm2" name="alarm2">
+                    </div>
+                    <div class="alarm-time">
+                        <label for="alarm3">Alarm 3:</label>
+                        <input type="time" id="alarm3" name="alarm3">
+                    </div>
+                    <div class="alarm-time">
+                        <label for="alarm4">Alarm 4:</label>
+                        <input type="time" id="alarm4" name="alarm4">
+                    </div>
+                    <div class="alarm-time">
+                        <label for="alarm5">Alarm 5:</label>
+                        <input type="time" id="alarm5" name="alarm5">
+                    </div>
+                    <div class="alarm-time">
+                        <label for="alarm6">Alarm 6:</label>
+                        <input type="time" id="alarm6" name="alarm6">
+                    </div>
+                    <button type="button" onclick="setAlarms()">Set Alarms</button>
+                </form>
+            </div>
+            <div id="change-phone" class="content">
+                <h1>Change Phone Number</h1>
+                <p>Update the caretaker's phone number here:</p>
+                <form id="phone-form">
+                    <label for="phone-number">New Phone Number:</label>
+                    <input type="tel" id="phone-number" name="phone-number" placeholder="+1234567890">
+                    <button type="button" onclick="updatePhoneNumber()">Update Number</button>
+                </form>
+            </div>
+            <!-- New Notifications Section -->
+            <div id="notifications" class="content">
+                <h1>Notifications</h1>
+                <p>Till now, no notifications.</p>
+            </div>
+            <div id="about" class="content">
+                <h1>About</h1>
+                <p>The Smart Medicine Reminder System is designed to ensure timely medication intake with the following features:</p>
+                <h2>Project Overview</h2>
+                <p>This system uses an Arduino microcontroller, a Real-Time Clock (RTC) module, an LCD display, a buzzer, and a GSM module (SIM800L) to manage medication reminders. The system monitors the current time and triggers alarms based on user-set times. It also sends SMS notifications if the medication is missed.</p>
+                <h2>Components Used</h2>
+                <ul>
+                    <li><strong>Arduino UNO:</strong> Central microcontroller.</li>
+                    <li><strong>RTC_DS3231:</strong> Real-Time Clock module for accurate timekeeping.</li>
+                    <li><strong>LiquidCrystal_I2C:</strong> LCD for displaying time and status.</li>
+                    <li><strong>SIM800L:</strong> GSM module for SMS notifications.</li>
+                    <li><strong>Buzzer:</strong> Alert signal for missed medication.</li>
+                    <li><strong>Switch:</strong> User input to acknowledge medication.</li>
+                </ul>
+                <h2>How It Works</h2>
+                <p>The system continuously checks the time. If the current time matches any of the user-set alarm times, the buzzer activates. If the user presses the button within a set time frame, an SMS is sent to confirm the medication was taken. If no action is taken, an SMS notification is sent indicating that the medication was missed.</p>
+                <h2>Future Enhancements</h2>
+                <p>Planned improvements include a web interface for remote configuration, app integration, and support for multiple alarms and phone numbers.</p>
+            </div>
+        </div>
+    </div>
+    <script>
+        function showContent(id) {
+            // Hide all content sections
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show the selected content section
+            const activeContent = document.getElementById(id);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+        }
+
+        // Example functions to handle form submissions
+        function setAlarms() {
+            const alarms = [];
+            for (let i = 1; i <= 6; i++) {
+                const alarm = document.getElementById(`alarm${i}`).value;
+                if (alarm) {
+                    alarms.push(alarm);
+                }
+            }
+            console.log('Alarms set:', alarms);
+            alert('Alarms have been set successfully.');
+        }
+
+        function updatePhoneNumber() {
+            const phoneNumber = document.getElementById('phone-number').value;
+            console.log('Phone number updated:', phoneNumber);
+            alert('Phone number has been updated successfully.');
+        }
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add a scroll-to-top button
+        const scrollTopBtn = document.createElement('button');
+        scrollTopBtn.innerHTML = '↑';
+        scrollTopBtn.className = 'scroll-top-btn';
+        document.body.appendChild(scrollTopBtn);
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 100) {
+                scrollTopBtn.style.display = 'none';
+            }
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
+
